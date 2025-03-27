@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Agregar Empleado</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class="container">
+    <h2>Agregar Empleado</h2>
+    <form th:action="@{/addEmpleado/{id}(id=${cliente.id})}" method="post">
+        <div class="form-group">
+            <label for="empleadoId">Empleado:</label>
+            <select id="empleadoId" name="empleadoId" class="form-control">
+                <option th:each="empleado : ${empleados}" th:value="${empleado.id}" th:text="${empleado.nombre}">Empleado</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Empleado</button>
+    </form>
+</div>
+</body>
+</html>

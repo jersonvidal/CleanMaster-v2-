@@ -1,0 +1,7 @@
+package com.springboot.models.service;
+
+import com.springboot.models.entity.Usuario;
+
+public interface UsuarioService {
+    Usuario findByLoginAndPassword(String login, String password); // Cambiado para incluir password
+}

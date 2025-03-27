@@ -1,0 +1,19 @@
+package com.springboot.models.repository;
+
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.springboot.models.entity.Empleado;
+
+@Repository
+public interface EmpleadoRepositorio extends JpaRepository<Empleado, Integer> {
+    
+    // Método para buscar empleados por rol
+    @Query("SELECT e FROM Empleado e WHERE e.rol.id = ?1")
+    List<Empleado> findEmpleadosByRolId(int rolId);
+
+    List<Empleado> findEmpleadosByTipoEmpleado_CodTipoEmp(int codTipoemp);
+
+}

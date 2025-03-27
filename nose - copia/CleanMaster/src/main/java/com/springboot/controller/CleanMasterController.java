@@ -1,0 +1,144 @@
+package com.springboot.controller;
+
+import com.springboot.models.entity.Cliente;
+import com.springboot.models.entity.Empleado;
+import com.springboot.models.entity.TipoServicio;
+import com.springboot.models.entity.Usuario;
+import com.springboot.models.service.ClienteService;
+import com.springboot.models.service.EmpleadoService;
+import com.springboot.models.service.UsuarioService;
+import com.springboot.models.serviceimpl.TipoServicioServiceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+public class CleanMasterController {
+
+    @Autowired
+    private ClienteService clienteService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
+    private EmpleadoService empleadoService;
+
+    @Autowired
+    private TipoServicioServiceImpl tipoServicioService; // Inyecta el servicio
+
+    // Página de inicio
+    @GetMapping("/")
+    public String index(Model model) {
+        Cliente cliente = new Cliente();
+        model.addAttribute("cliente", cliente);
+
+        List<TipoServicio> tiposServicio = tipoServicioService.findAll();
+        System.out.println("Tipos de servicio en el controlador: " + tiposServicio);
+        model.addAttribute("tiposServicio", tiposServicio);
+
+        return "index";
+    }
+    // Método para reservar un cliente
+    @PostMapping("/reservar")
+    public String reservar(Cliente cliente, Model model) {
+        try {
+            int resultado = clienteService.save(cliente);
+            if (resultado > 0) {
+                model.addAttribute("mensaje", "Reserva realizada con éxito.");
+            } else {
+                model.addAttribute("mensaje", "Error al realizar la reserva.");
+            }
+            return "redirect:/"; // Redirige de nuevo a la página de inicio
+        } catch (Exception e) {
+            model.addAttribute("mensaje", "Ocurrió un error al guardar el cliente: " + e.getMessage());
+            return "redirect:/"; // Regresa al formulario con un mensaje de error
+        }
+    }
+    // Método para buscar un cliente por DNI
+    @GetMapping("/buscar-cliente")
+    @ResponseBody
+    public Cliente buscarCliente(@RequestParam("dni") int dni) {
+      return clienteService.findByDNI(dni);
+    }
+    // Página de listado de clientes
+    @GetMapping("/listadoClientes")
+    public String listadoClientes(Model model) {
+        List<Cliente> clientes = clienteService.findAll(); // Asegúrate que este método esté trayendo los datos correctamente
+        for (Cliente cliente : clientes) {
+            System.out.println(cliente.getTipoServicio()); // Verifica que no haya nulos inesperados
+        }
+        model.addAttribute("clientes", clientes);
+        return "listadoClientes";
+    }
+
+    @GetMapping("/listadoClientess")
+    public String listadoClientess(Model model) {
+    	List<Cliente> clientes = clienteService.findAll();
+        model.addAttribute("clientes", clientes);
+        return "listadoClientess";
+    }
+    
+    @GetMapping("/addEmpleado/{id}")
+    public String addEmpleado(@PathVariable int id, Model model) {
+        Cliente cliente = clienteService.findByID(id);
+        List<Empleado> empleados = empleadoService.findAll();
+        model.addAttribute("cliente", cliente);
+        model.addAttribute("empleados", empleados);
+        return "addEmpleado"; // Vista donde se selecciona el empleado
+    }
+
+    @PostMapping("/addEmpleado/{id}")
+    public String addEmpleado(@PathVariable int id, @RequestParam int empleadoId, RedirectAttributes redirectAttributes) {
+        // Busca el cliente por ID
+        Cliente cliente = clienteService.findByID(id);
+        // Busca el empleado por ID
+        Empleado empleado = empleadoService.findById(empleadoId);
+        
+        // Verifica que el cliente y el empleado existan
+        if (cliente == null || empleado == null) {
+            redirectAttributes.addFlashAttribute("error", "Cliente o empleado no encontrado.");
+            return "redirect:/listadoClientess";
+        }
+
+        // Asigna el empleado al cliente
+        cliente.setEmpleado(empleado);
+        clienteService.save(cliente);
+        redirectAttributes.addFlashAttribute("mensaje", "Empleado agregado correctamente");
+        return "redirect:/listadoClientess";
+    }
+ // Página de login
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("usuario", new Usuario()); // Creamos un nuevo objeto Usuario
+        return "login"; // Nombre del template Thymeleaf
+    }
+
+    // Método para procesar el login
+    @PostMapping("/iniciarSesion")
+    public String iniciarSesion(@ModelAttribute Usuario usuario, Model model) {
+        Usuario usuarioDB = usuarioService.findByLoginAndPassword(usuario.getLogin(), usuario.getPassword());
+        if (usuarioDB != null) {
+            return "redirect:/intranet"; 
+        } else {
+            model.addAttribute("mensaje", "Credenciales incorrectas.");
+            return "login";
+        }
+    }
+
+    // Página de intranet
+    @GetMapping("/intranet")
+    public String intranet(Model model) {
+        return "intranet"; // Nombre del template Thymeleaf
+    }
+}

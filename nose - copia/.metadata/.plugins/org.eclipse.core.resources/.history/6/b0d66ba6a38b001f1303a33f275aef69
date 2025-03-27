@@ -1,0 +1,20 @@
+package com.springboot.models.serviceimpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.springboot.models.entity.Usuario;
+import com.springboot.models.repository.UsuarioRepositorio; // Asegúrate de tener un repositorio para Usuario
+import com.springboot.models.service.UsuarioService;
+
+@Service
+public class UsuarioServiceImpl implements UsuarioService {
+
+    @Autowired
+    private UsuarioRepositorio usuarioRepositorio; // Repositorio para Usuario
+
+    @Override
+    public Usuario findByLoginAndPassword(String login, String password) { // Cambiado para incluir password
+        return usuarioRepositorio.findByLoginAndPassword(login, password);
+    }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Clientes</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="my-4">Listado de Clientes</h2>
+        
+        <!-- Mostrar un mensaje en caso de error -->
+        <div th:if="${mensaje}" class="alert alert-danger" th:text="${mensaje}"></div>
+
+        <!-- Tabla para mostrar los clientes -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>DNI</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Fecha</th>
+                    <th>Tipo de Servicio</th>
+                    <!-- Ajustado si tienes relación directa con Empleado -->
+                    <th>Empleado</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Iterar sobre la lista de clientes -->
+                <tr th:each="cliente : ${clientes}">
+                    <td th:text="${cliente.codigo}">1</td>
+                    <td th:text="${cliente.dni}">12345678</td>
+                    <td th:text="${cliente.nombre}">John Doe</td>
+                    <td th:text="${cliente.correo}">johndoe@email.com</td>
+                    <td th:text="${cliente.telefono}">987654321</td>
+                    <td th:text="${#dates.format(cliente.fecha, 'dd/MM/yyyy')}">10/10/2024</td>
+                    
+                    <!-- Relación con TipoServicio -->
+<td th:text="${cliente.tipoServicio != null ? cliente.tipoServicio.nomTipo : 'N/A'}">Tipo de Servicio</td>
+                    
+                    <!-- Relación con Empleado (ajusta si tienes esta relación) -->
+                    <td th:text="${cliente.empleado != null ? cliente.empleado.nombre : 'N/A'}">Empleado 1</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

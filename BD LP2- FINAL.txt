@@ -1,0 +1,131 @@
+DROP DATABASE IF EXISTS CleanMaster;
+CREATE DATABASE CleanMaster;
+USE CleanMaster;
+
+-- Crear tabla tb_tipoServicio
+DROP TABLE IF EXISTS tb_tipo_servicio;
+CREATE TABLE tb_tipo_servicio (
+    cod_tipo INT PRIMARY KEY AUTO_INCREMENT,
+    nom_tipo varchar(35)
+);
+
+INSERT INTO tb_tipo_servicio (cod_tipo, nom_tipo) VALUES 
+(1, 'x'),
+(2, 'x'),
+(3, 'x'),
+(4, 'x');
+
+-- Crear tabla tb_tipoempleado
+DROP TABLE IF EXISTS tb_tipoempleado;
+CREATE TABLE tb_tipoempleado (
+    cod_tipoemp INT PRIMARY KEY AUTO_INCREMENT,
+    tipo_emp VARCHAR(30)
+);
+
+INSERT INTO tb_tipoempleado (tipo_emp) VALUES 
+('Gerente'),
+('Limpiador'),
+('Recepcionista');
+
+-- Crear tabla tb_empleado
+DROP TABLE IF EXISTS tb_empleado;
+CREATE TABLE tb_empleado (
+    cod_emp INT PRIMARY KEY AUTO_INCREMENT,
+    nom_emp VARCHAR(35),
+    cod_tipoemp INT,
+    FOREIGN KEY (cod_tipoemp) REFERENCES tb_tipoempleado(cod_tipoemp)
+);
+
+INSERT INTO tb_empleado (nom_emp, cod_tipoemp) VALUES 
+('Jersonn', 1),
+('Jose', 2),
+('Juan', 3);
+
+-- Crear tabla tb_cliente
+DROP TABLE IF EXISTS tb_cliente;
+CREATE TABLE tb_cliente (
+    cod_cli INT PRIMARY KEY AUTO_INCREMENT,
+    dni_cli INT,
+    nom_cli VARCHAR(35),
+    correo_cli VARCHAR(30),
+    tele_cli VARCHAR(9),
+    fecha_cli DATE,
+    cod_tipo INT,
+    cod_emp INT,
+    FOREIGN KEY (cod_tipo) REFERENCES tb_tipo_servicio(cod_tipo),
+    FOREIGN KEY (cod_emp) REFERENCES tb_empleado(cod_emp) -- Relación con empleado
+);
+INSERT INTO tb_cliente (dni_cli, nom_cli, correo_cli, tele_cli, fecha_cli, cod_tipo) VALUES 
+(993845742, 'Jerson', 'jersonvidal2@gmail.com', '923929893', NULL, 2);
+
+-- Crear tabla tb_enlace
+DROP TABLE IF EXISTS tb_enlace;
+CREATE TABLE tb_enlace (
+    idenlace INT NOT NULL AUTO_INCREMENT,
+    descripcion VARCHAR(45) DEFAULT NULL,
+    ruta VARCHAR(45) DEFAULT NULL,
+    tipo VARCHAR(1) DEFAULT NULL,
+    PRIMARY KEY (idenlace)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO tb_enlace (descripcion, ruta, tipo) VALUES 
+('Clientes', 'listadoClientes.jsp', 'A'),
+('Limpieza', 'limpieza.jsp', 'B');
+
+-- Crear tabla tb_rol
+DROP TABLE IF EXISTS tb_rol;
+CREATE TABLE tb_rol (
+    idrol INT NOT NULL AUTO_INCREMENT,
+    descripcion VARCHAR(45) DEFAULT NULL,
+    PRIMARY KEY (idrol)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO tb_rol (descripcion) VALUES 
+('Administrador'),
+('Limpiador'),
+('Recepcionista');
+
+-- Crear tabla tb_rol_enlace
+DROP TABLE IF EXISTS tb_rol_enlace;
+CREATE TABLE tb_rol_enlace (
+    idrol INT NOT NULL,
+    idenlace INT NOT NULL,
+    PRIMARY KEY (idrol, idenlace),
+    FOREIGN KEY (idrol) REFERENCES tb_rol(idrol),
+    FOREIGN KEY (idenlace) REFERENCES tb_enlace(idenlace)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO tb_rol_enlace (idrol, idenlace) VALUES 
+(1, 1),
+(1, 2),
+(2, 2),
+(3, 1);
+
+-- Crear tabla tb_usuario
+DROP TABLE IF EXISTS tb_usuario;
+CREATE TABLE tb_usuario (
+    cod_usu INT NOT NULL AUTO_INCREMENT,
+    login VARCHAR(45) DEFAULT NULL,
+    password VARCHAR(45) DEFAULT NULL,
+    idrol INT DEFAULT NULL,
+    cod_emp INT DEFAULT NULL,
+    PRIMARY KEY (cod_usu),
+    FOREIGN KEY (idrol) REFERENCES tb_rol(idrol),
+    FOREIGN KEY (cod_emp) REFERENCES tb_empleado(cod_emp)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO tb_usuario (login, password, idrol, cod_emp) VALUES 
+('jerson123', 'jerson222', 1, 1),
+('jose123', 'jose222', 2, 2),
+('juan123', 'juan222', 3, 3);
+
+-- Consulta para verificar relaciones
+SELECT c.*, e.nom_emp  
+FROM tb_cliente c  
+LEFT JOIN tb_empleado e ON c.cod_emp = e.cod_emp;
+
+
+select * from tb_cliente
+select * from tb_tipo_servicio
+SELECT * FROM tb_cliente WHERE cod_tipo IS NOT NULL;
+
